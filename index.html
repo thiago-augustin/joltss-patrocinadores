@@ -87,6 +87,10 @@
 
       const res = await addDoc(collection(db, "survivors"), player);
 
+      document.getElementById('nickname').value = '';
+      document.getElementById('discord').value = '';
+      document.getElementById('day').value = '';
+
       console.log("Response", res)
     }
 
