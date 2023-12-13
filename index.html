@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro</title>
+  <link rel="stylesheet" href="./styles/base.css">
+  <link rel="stylesheet" href="./styles/formulary.css">
+  <link rel="stylesheet" href="./styles/table.css">
+</head>
+<body>
+  <div class="formulary">
+    <div class="form">
+      <div class="title">Bem vindo lenda!</div>
+      <div class="subtitle">Insira os dados do sobrevivente...</div>
+      <div class="input-container ic1">
+        <input id="nickname" class="input" type="text" placeholder=" " />
+        <div class="cut"></div>
+        <label for="nickname" class="placeholder">Nick</label>
+      </div>
+      <div class="input-container ic2">
+        <input id="discord" class="input" type="text" placeholder=" " />
+        <div class="cut"></div>
+        <label for="discord" class="placeholder">Discord</label>
+      </div>
+      <div class="input-container ic2">
+        <input id="day" class="input" type="text" placeholder=" " />
+        <div class="cut"></div>
+        <label for="day" class="placeholder">Dia de pagamento</label>
+      </div>
+      <button type="text" class="submit" id="submit">enviar</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Patrocinadores</h2>
+    <ul class="responsive-table" id="responsive-table">
+      
+    </ul>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, onSnapshot  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"; 
+
+    /*
+      Dados de conexão com o Firebase
+    */
+    const firebaseConfig = {
+      apiKey: "AIzaSyCGuT6K2bR3Qi_Lctzait7ksTKu0Afwk4s",
+      authDomain: "joltss-patrocinadores.firebaseapp.com",
+      projectId: "joltss-patrocinadores",
+      storageBucket: "joltss-patrocinadores.appspot.com",
+      messagingSenderId: "159829476498",
+      appId: "1:159829476498:web:b149ce5198fe3603f9d24b",
+      measurementId: "G-3555NPE398",
+    };
+
+    /*
+     Criando instâncias do Firebase
+    */
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    /*
+      Configurando o evento de submit
+    */
+    const submit = document.getElementById('submit');
+    submit.addEventListener('click', (event) => {
+      event.preventDefault();
+      addNewSurvivor();
+    })
+
+    /*
+      Cadastro de novo player
+    */
+    const addNewSurvivor = async () => {
+      const nickname = document.getElementById('nickname').value;
+      const discord = document.getElementById('discord').value;
+      const day = document.getElementById('day').value;
+
+      const player = {
+          nickname,
+          discord,
+          day
+        }
+
+      const res = await addDoc(collection(db, "survivors"), player);
+
+      console.log("Response", res)
+    }
+
+    /*
+      Atualizar lista de patrocinadores
+    */
+    const survivorList = query(collection(db, "survivors"));
+
+    onSnapshot(survivorList, (querySnapshot) => {
+    let template = `
+      <li class="table-header">
+        <div class="col col-1">Nick</div>
+        <div class="col col-2">Discord</div>
+        <div class="col col-3">Dia do pagamento</div>
+      </li>
+    `;
+
+    querySnapshot.forEach((doc) => {
+      const player = doc.data();
+      const {nickname, discord, day} = player;
+
+      template += `
+        <li class="table-row">
+          <div class="col col-1" data-label="Nick">${nickname}</div>
+          <div class="col col-2" data-label="Discord">${discord}</div>
+          <div class="col col-3" data-label="Day">${day}</div>
+        </li>
+      `
+    });
+
+    document.getElementById('responsive-table').innerHTML = template;
+  });
+  </script>
+</body>
+</html>
